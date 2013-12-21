@@ -14,15 +14,32 @@ FEATURES
 
 EXAMPLE
 -------
-./map.py -m transit -d "tomorrow evening" -u metric "123 Your House, Toronto ON" "4567 Your Mom's House, Waterloo, ON" 
+    ./map.py -m transit -d "tomorrow evening" -u metric "123 Your House, Toronto ON" "4567 Your Mom's House, Waterloo, ON" 
 
 USAGE:
 --------
-main.py [options] origin destination
-  * -h, --help 
-  * -m MODE, --mode=MODE                            specifies type of transportation desired
-  * -u UNITS, --units=UNITS                         specifies choice between metric and imperial systems
-  * -a ARRIVAL_TIME, --arrival=ARRIVAL_TIME         specifies desired time of arrival. can be stated in natural language
-  * -d DEPARTURE_TIME, --departure=DEPARTURE_TIME   specifies desired time of departure, can be stated in natural language
-  * -e AVOID, --evade=AVOID                         specifies choice in avoiding tolls or highways
+```
+map.py [options] origin destination
+
+Options:
+  -h, --help            show this help message and exit
+  -m MODE, --mode=MODE  specifies type of transportation desired
+                        [driving,transit,bicycling,walking]
+  -u UNITS, --units=UNITS
+                        specifies choice between metric and imperial systems
+  -z, --no-url          Disables URL-String
+  -s SENSOR, --sensor=SENSOR
+  -a ARRIVAL_TIME, --arrival=ARRIVAL_TIME
+                        specifies desired time of arrival. can be stated in
+                        natural language
+  -d DEPARTURE_TIME, --departure=DEPARTURE_TIME
+                        specifies desired time of departure. can be stated in
+                        natural language
+  -e AVOID, --evade=AVOID
+                        specifies choice in avoiding tolls or highways
+  -r REGION, --region=REGION
+                        Region bias. Set tld
+  -i ITERATOR, --iterator=ITERATOR
+                        Number of results to be retrieved
+```
 

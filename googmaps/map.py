@@ -27,7 +27,7 @@ def main():
   parser.add_option("-d", "--departure", action="store", dest="departure_time", help="specifies desired time of departure. can be stated in natural language")
   parser.add_option("-e", "--evade", action="store", dest="avoid", help="specifies choice in avoiding tolls or highways")
   parser.add_option("-r", "--region", action="store", dest="region", help="Region bias. Set tld")
-  parser.add_option("-i", "--iterator", action="store", dest="iterator", help="how many times should the query be iterated?")
+  parser.add_option("-i", "--iterator", action="store", dest="iterator", help="Number of results to be retrieved")
 
 # probably we should use alternatives instead of iterating ourselves
 
