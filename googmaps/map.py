@@ -177,9 +177,13 @@ def checkresp(respjson, resp):
 def printwarnings(respjson):
   warnings = respjson['routes'][0]['warnings']
   if warnings:
-    cprint ("\nWarnings:", 'red')
-    for warning in warnings:
-      cprint ("- " + sanitize(warning), 'red')
+      # remove warning for pedestrians, its annoying
+      if len(warnings) == 1 and "pedestrian" in  warnings[0]:
+        pass
+      else:
+         cprint ("\nWarnings:", 'red')
+         for warning in warnings:
+           cprint ("- " + sanitize(warning), 'red')
 
 
 main()
