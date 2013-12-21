@@ -21,13 +21,12 @@ def main():
   # see https://developers.google.com/maps/documentation/directions/
   parser.add_option("-m", "--mode", action="store", dest="mode", help="specifies type of transportation desired [driving,transit,bicycling,walking]", default="driving")
   parser.add_option("-u", "--units", action="store", dest="units", help="specifies choice between metric and imperial systems")
-  parser.add_option("-z", "--no--url", action="store_true", dest="nourl", default=False, help="Disables URL-String")
+  parser.add_option("-z", "--no-url", action="store_true", dest="nourl", default=False, help="Disables URL-String")
   parser.add_option("-s", "--sensor", action="store", dest="sensor", default="false")
   parser.add_option("-a", "--arrival", action="store", dest="arrival_time", help="specifies desired time of arrival. can be stated in natural language")
   parser.add_option("-d", "--departure", action="store", dest="departure_time", help="specifies desired time of departure. can be stated in natural language")
   parser.add_option("-e", "--evade", action="store", dest="avoid", help="specifies choice in avoiding tolls or highways")
   parser.add_option("-r", "--region", action="store", dest="region", help="Region bias. Set tld")
-  parser.add_option("-r", "--region", action="store", dest="avoid", help="Region bias. Set tld")
   parser.add_option("-i", "--iterator", action="store", dest="iterator", help="how many times should the query be iterated?")
 
 # probably we should use alternatives instead of iterating ourselves
@@ -81,11 +80,10 @@ def make_url(parser, options, args, printInfo=True):
   base_url = 'http://maps.googleapis.com/maps/api/directions/json?origin=' + origin + '&destination=' + destination + '&'
 
   url = (base_url + url_end)[:-1]
-  val =print_path(url,printInfo)
-  if val > 0:
-      return val
-  else:
-      return time
+  while True:
+     val =print_path(url,printInfo)
+     if val > 0:
+       return val
 
 def increment_time(options,valueNew, inc=5):
   for key,value in options.__dict__.items():
