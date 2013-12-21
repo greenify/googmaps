@@ -18,15 +18,19 @@ def main():
   parser = OptionParser()
   usage = "usage: %prog [options] origin destination"
   parser = OptionParser(usage=usage)
-  parser.add_option("-m", "--mode", action="store", dest="mode", help="specifies type of transportation desired", default="driving")
+  # see https://developers.google.com/maps/documentation/directions/
+  parser.add_option("-m", "--mode", action="store", dest="mode", help="specifies type of transportation desired [driving,transit,bicycling,walking]", default="driving")
   parser.add_option("-u", "--units", action="store", dest="units", help="specifies choice between metric and imperial systems")
   parser.add_option("-z", "--no--url", action="store_true", dest="nourl", default=False, help="Disables URL-String")
   parser.add_option("-s", "--sensor", action="store", dest="sensor", default="false")
   parser.add_option("-a", "--arrival", action="store", dest="arrival_time", help="specifies desired time of arrival. can be stated in natural language")
   parser.add_option("-d", "--departure", action="store", dest="departure_time", help="specifies desired time of departure. can be stated in natural language")
   parser.add_option("-e", "--evade", action="store", dest="avoid", help="specifies choice in avoiding tolls or highways")
+  parser.add_option("-r", "--region", action="store", dest="region", help="Region bias. Set tld")
+  parser.add_option("-r", "--region", action="store", dest="avoid", help="Region bias. Set tld")
   parser.add_option("-i", "--iterator", action="store", dest="iterator", help="how many times should the query be iterated?")
- # parser.add_option("-t", "--time-sleep", action="store_true", dest="timesleep",default=False, help="Sleeps between every requests")
+
+# probably we should use alternatives instead of iterating ourselves
 
   (options, args) = parser.parse_args(args)
   if len(args) != 3:
