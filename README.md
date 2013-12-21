@@ -6,10 +6,13 @@ Quick project I put together using the Google Maps API to grab directions in tex
 FEATURES
 -------------
 - Natural language support for departure/arrival times
-- Ability to specify desired mode of transport (biking, transit, driving)
+- Ability to specify desired mode of transport (biking, transit, driving, cycling)
 - Option to avoid roads and tolls
 - Linking to actual page in case you wanna look at a map
 - Pretty printing, with some colors
+- Set local region
+- Set number of results to be retrieved 
+- Display real google warnings (Pedestrian beta mode is filtered)
 
 
 EXAMPLE
