@@ -15,6 +15,7 @@ FEATURES
 - Set number of results to be retrieved 
 - Display real google warnings (Pedestrian beta mode is filtered)
 - Language support (not translated yet)
+- adjustable width
 
 EXAMPLE
 -------
