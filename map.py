@@ -45,13 +45,13 @@ mo_location = LOCALE_DIR
 # Lets tell those details to gettext
 #  (nothing to change here for you)
 gettext.install(True, localedir=None, unicode=1)
- 
 gettext.find(APP_NAME, mo_location)
 gettext.textdomain (APP_NAME)
 gettext.bind_textdomain_codeset(APP_NAME, "UTF-8")
- 
-language = gettext.translation(APP_NAME, mo_location, languages=languages, fallback=True)
 
+
+language = gettext.translation(APP_NAME, mo_location, languages, fallback=True)
+language.install()
 
 # how to i18n
 # 1. create .po: xgettext --language=Python --keyword=_ --output=i18n/po/GooGmaps.pot `find . -name "*.py"`
@@ -71,7 +71,7 @@ def main():
 	# see https://developers.google.com/maps/documentation/directions/
 	parser.add_option("-m", "--mode", action="store", dest="mode",
 					help="specifies type of transportation desired [driving,transit,bicycling,walking]", default="driving")
-	parser.add_option("-u", "--units", action="store", dest="units",
+	parser.add_option("-u", "--units", action="store", dest="units",default="metric",
 					help="specifies choice between metric and imperial systems")
 	parser.add_option("-z", "--no-url", action="store_true",
 					dest="nourl", default=False, help="Disables URL-String")
@@ -83,10 +83,10 @@ def main():
 					help="specifies desired time of departure. can be stated in natural language")
 	parser.add_option("-e", "--evade", action="store", dest="avoid",
 					help="specifies choice in avoiding tolls or highways")
-	parser.add_option("-c", "--width", action="store", default=120, dest="width",
+	parser.add_option("-c", "--width", action="store", default=80, dest="width",
 					help="output width")
 	parser.add_option("-l", "--language", action="store",
-					dest="language", help="Direction language.")
+					dest="language", default="", help="Direction language.")
 	parser.add_option("-r", "--region", action="store",
 					dest="region", help="Region bias. Set tld")
 	parser.add_option("-i", "--iterator", action="store",
@@ -96,7 +96,13 @@ def main():
 
 	(options, args) = parser.parse_args(args)
 	if len(args) != 3:
-	  parser.error("Incorrect number")
+	 	parser.error(_("Incorrect number"))
+
+	# check for language
+	if True:
+
+		language = gettext.translation(APP_NAME, mo_location, [options.language], fallback=True)
+		language.install()
 
 	ites = 0
 	try:
@@ -112,7 +118,7 @@ def main():
 		make_url(parser, options, args)
 	else:
 		if options.mode != "transit":
-			cprint("iterating does not make sense", "red")
+			cprint(_("iterating does not make sense"), "red")
 			make_url(parser, options, args)
 		else:
 			for i in range(ites):
@@ -144,7 +150,7 @@ def make_url(parser, options, args, printInfo=True):
 	destination = re.sub(' ', '+', args[2])
 
 	if not options.nourl :
-		cprint ("To view these directions online, follow this link: " + "http://mapof.it/" + origin + '/' + destination, 'cyan')
+		cprint (_("To view these directions online, follow this link: ") + "http://mapof.it/" + origin + '/' + destination, 'cyan')
 
 	base_url = 'http://maps.googleapis.com/maps/api/directions/json?origin=' + origin + '&destination=' + destination + '&'
 
@@ -198,9 +204,18 @@ def print_path(url, printInfo=True, mode="car", width=120):
 			sys.stdout.write(" [")
 			duraText= keypoints['duration']['text'].split(" ")
 			rem = ""
+
+			# hack for german abbreviations
+			for dur in duraText:
+				if dur in "Minuten":
+					dur = "Mins."
+
+			rem =""
 			if len(duraText) > 2:
-				rem = " " +" ".join(duraText[2:])
-			duraText=  "%-2s %s" % (duraText[0] , duraText[1], rem)
+				rem = " "+ " ".join(duraText[2:])
+			else:
+				duraText[1] = " "+ duraText[1]
+			duraText=  "%-2s%s%s" % (duraText[0] , duraText[1], rem)
 			sys.stdout.write(colored(duraText, "blue"))
 			sys.stdout.write("]")
 		print ""
@@ -216,7 +231,7 @@ def print_path(url, printInfo=True, mode="car", width=120):
 	#dirty hack
 	width = width + 7
 	instruction_width = width -4 -20
-	table.set_cols_width([4,instruction_width, 20])
+	table.set_cols_width([4,instruction_width, 21])
 	
 
 	for step in steps:
@@ -225,10 +240,14 @@ def print_path(url, printInfo=True, mode="car", width=120):
 		instruction = re.sub('Destination', '. Destination', instruction)
 
 		duraText= step['duration']['text'].split(" ")
+		# hack for german abbreviations
+		for i in range(len(duraText)):
+			if "Minuten" in duraText[i]:
+				duraText[i] = "Mins."
 		rem = ""
 		if len(duraText) > 2:
 				rem = " " +" ".join(duraText[2:])
-		duraText=  "%-2s %s%s" % (duraText[0] , duraText[1], rem)
+		duraText=  " %-2s %s%s" % (duraText[0] , duraText[1], rem)
 		duraText = apply_color_per_chunk(duraText, 'green')
 
 	
@@ -289,36 +308,36 @@ def checkinput(options):
 
 def checkresp(respjson, resp):
 	if resp.code != 200:
-		print "Sorry, something went wrong. Here is the output:"
+		print _("Sorry, something went wrong. Here is the output:")
 		print resp.text
 		sys.exit()
 	elif respjson['status'] == "ZERO_RESULTS":
-		print "Your query returned no results. Try ^ that link maybe?"
+		print _("Your query returned no results. Try ^ that link maybe?")
 		sys.exit()
 
 		try:
 		  respjson['routes']
 		except KeyError:
-		  print "No 'routes' in response"
+		  print _("No 'routes' in response")
 
 		try:
 		  respjson['routes'][0]
 		except IndexError:
-		  print "Index out of range"
+		  print _("Index out of range")
 		except TypeError:
-		  print "Bad index type"
+		  print _("Bad index type")
 
 		try:
 		  respjson['routes'][0]['legs']
 		except KeyError:
-		  print "Bad Key"
+		  print _("Bad Key")
 
 
 def printwarnings(respjson, cwidth):
 	warnings = respjson['routes'][0]['warnings']
 	if warnings:
 	  # remove warning for pedestrians, its annoying
-		if len(warnings) == 1 and "pedestrian" in  warnings[0]:
+		if len(warnings) == 1 and ("pedestrian" in  warnings[0] or "Beta-Stadium" in warnings[0]):
 			pass
 		else:
 			cprint ("\n"+_("Warnings")+":", 'red')
