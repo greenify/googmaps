@@ -9,6 +9,8 @@ from time import mktime
 import parsedatetime.parsedatetime as pdt
 import urllib2
 import time
+import texttable
+import textwrap
 
 cal = pdt.Calendar()
 
@@ -60,7 +62,7 @@ def main():
 	else:
 		if options.mode != "transit":
 			cprint("iterating does not make sense", "red")
-		 	make_url(parser, options, args)
+			make_url(parser, options, args)
 		else:
 			for i in range(ites):
 				newOffset = make_url(parser, options, args, False)
@@ -70,11 +72,11 @@ def main():
 def make_url(parser, options, args, printInfo=True):
 	checkinput(options)
 
- 	url_end = ''
+	url_end = ''
 
 	for key,value in options.__dict__.items():
-	  	if(value != None):
-		 	if key in ["departure_time", "arrival_time"]:
+		if(value != None):
+			if key in ["departure_time", "arrival_time"]:
 				try:
 				  value = int(value)
 				except ValueError as e:
@@ -83,7 +85,7 @@ def make_url(parser, options, args, printInfo=True):
 				  time = value
 				  value = str(value)
 
-	 		if not isinstance(value, bool):
+			if not isinstance(value, bool):
 				re.sub(' ', '+', value)
 				url_end += key + '=' + value + '&'
 
@@ -97,7 +99,7 @@ def make_url(parser, options, args, printInfo=True):
 
 	url = (base_url + url_end)[:-1]
 	while True:
-	 	val =print_path(url,printInfo,options.mode )
+		val =print_path(url,printInfo,options.mode )
 		if val > 0:
 			return val
 
@@ -114,12 +116,12 @@ def increment_time(options,valueNew, inc=5):
 def print_path(url, printInfo=True, mode="car"):
 
 	req = urllib2.Request(url)
-  	response = urllib2.urlopen(req)
+	response = urllib2.urlopen(req)
 	resp_text = response.read()
 	respjson= simplejson.loads(resp_text)
 
 	if respjson['status'] == 'OVER_QUERY_LIMIT' :
-	  	print "QUERY_OVERLIMIT"
+		print "QUERY_OVERLIMIT"
 		time.sleep(1)
 		return -1;
 
@@ -128,10 +130,10 @@ def print_path(url, printInfo=True, mode="car"):
 	keypoints = respjson['routes'][0]['legs'][0]
 
 	if printInfo:
-	 	print "From: " + keypoints['start_address']
-	print "To: " + keypoints['end_address']
-	print "Distance: " + keypoints['distance']['text']
-	print "Duration: " + keypoints['duration']['text']
+		print "From: " + keypoints['start_address']
+		print "To: " + keypoints['end_address']
+		print "Distance: " + keypoints['distance']['text']
+		print "Duration: " + keypoints['duration']['text']
 
 	printwarnings(respjson)
 
@@ -141,22 +143,53 @@ def print_path(url, printInfo=True, mode="car"):
 		cprint( keypoints['arrival_time']['text'], 'blue')
 
 	steps, linenum = keypoints['steps'], 1
+
+
+	table = texttable.Texttable()
+	table.set_deco(0)
+	table.set_cols_dtype(['t',  't',    't']) 
+	table.set_cols_align(["l", "l", "l"])
+	table.set_cols_valign(["t", "t", "t"])
+	table.set_cols_width([3,83, 60])
+	
+
 	for step in steps:
-		instruction = sanitize(step['html_instructions'])
+		instruction = sanitize(step['html_instructions'], 80)
 		# fix for formatting issue on last line of instructions
 		instruction = re.sub('Destination', '. Destination', instruction)
 		sys.stdout.write(str(linenum) + '. ' + instruction + ': ')
 		cprint(step['duration']['text'], 'green')
+
+		duraText= step['duration']['text'].split(" ")
+		duraText=  "%-2s %s" % (duraText[0] , duraText[1])
+		duraText = colored(duraText, 'green')
+
+	
+		table.add_row([str(linenum)+".",instruction, duraText])
 		linenum += 1
 
-	if mode == "transit":
-	  	return keypoints['departure_time']['value']
-	else:
-	  	return 1;
+	print table.draw()
 
-def sanitize(sentence):
-	result = re.sub('<.*?>', '', sentence.encode('utf-8', 'ignore'))
- 	return result
+	if mode == "transit":
+		return keypoints['departure_time']['value']
+	else:
+		return 1;
+
+def sanitize(sentence, length=80):
+
+	# remove all divs
+	result = re.sub('<div(.*)>(.*)</div>', '\g<2>', sentence.encode('utf-8'))
+	# double continue hack
+	result = re.sub('>Continue to (.*)$', '> -> \g<1>', result);
+
+	# wee need to format it into multiple lines, before we add colors.
+	result = textwrap.fill(result,length)
+
+	# output <b> as bold
+	result = re.sub('<b>(.*)</b>',colored("\g<1>",  attrs=['bold'])  , result)
+	# remove remaining tags
+	result = re.sub('<.*?>', '', result)
+	return result
 
 
 def checkinput(options):
@@ -173,7 +206,7 @@ def checkresp(respjson, resp):
 		sys.exit()
 	elif respjson['status'] == "ZERO_RESULTS":
 		print "Your query returned no results. Try ^ that link maybe?"
-	 	sys.exit()
+		sys.exit()
 
 		try:
 		  respjson['routes']
@@ -195,14 +228,14 @@ def checkresp(respjson, resp):
 
 def printwarnings(respjson):
 	warnings = respjson['routes'][0]['warnings']
-  	if warnings:
+	if warnings:
 	  # remove warning for pedestrians, its annoying
-	  	if len(warnings) == 1 and "pedestrian" in  warnings[0]:
-		 	pass
-	 	else:
-		 	cprint ("\nWarnings:", 'red')
-		 	for warning in warnings:
-			 	cprint ("- " + sanitize(warning), 'red')
+		if len(warnings) == 1 and "pedestrian" in  warnings[0]:
+			pass
+		else:
+			cprint ("\nWarnings:", 'red')
+			for warning in warnings:
+				cprint ("- " + sanitize(warning), 'red')
 
 
 main()
