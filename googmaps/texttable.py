@@ -544,7 +544,6 @@ class Texttable:
 
             out += "%s\n" % ['', self._char_vert][self._has_border()]
 
-        print ""
         return out
 
     def _splitit(self, line, isheader):

@@ -32,7 +32,7 @@ def main():
 					dest="sensor", default="false")
 	parser.add_option("-a", "--arrival", action="store", dest="arrival_time",
 					help="specifies desired time of arrival. can be stated in natural language")
-	parser.add_option("-d", "--departure", action="store", dest="departure_time",
+	parser.add_option("-d", "--departure",default="now", action="store", dest="departure_time",
 					help="specifies desired time of departure. can be stated in natural language")
 	parser.add_option("-e", "--evade", action="store", dest="avoid",
 					help="specifies choice in avoiding tolls or highways")
@@ -140,7 +140,16 @@ def print_path(url, printInfo=True, mode="car"):
 	if 'mode=transit' in url:
 		cprint( keypoints['departure_time']['text'], 'blue', end='')
 		sys.stdout.write("\t- ")
-		cprint( keypoints['arrival_time']['text'], 'blue')
+		sys.stdout.write(colored( keypoints['arrival_time']['text'], 'blue'))
+		# we want to format the duration by ourself
+		if not printInfo:
+			sys.stdout.write(" [")
+			duraText= keypoints['duration']['text'].split(" ")
+			duraText=  "%-2s %s" % (duraText[0] , duraText[1])
+			duraText = colored(duraText, 'green')
+			sys.stdout.write(colored(duraText, "blue"))
+			sys.stdout.write("]")
+		print ""
 
 	steps, linenum = keypoints['steps'], 1
 
@@ -157,8 +166,6 @@ def print_path(url, printInfo=True, mode="car"):
 		instruction = sanitize(step['html_instructions'], 80)
 		# fix for formatting issue on last line of instructions
 		instruction = re.sub('Destination', '. Destination', instruction)
-		sys.stdout.write(str(linenum) + '. ' + instruction + ': ')
-		cprint(step['duration']['text'], 'green')
 
 		duraText= step['duration']['text'].split(" ")
 		duraText=  "%-2s %s" % (duraText[0] , duraText[1])
