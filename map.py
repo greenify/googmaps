@@ -6,7 +6,7 @@ import simplejson
 from optparse import OptionParser
 from termcolor import colored, cprint
 from time import mktime
-import parsedatetime.parsedatetime as pdt
+import parsedatetime as pdt
 import urllib2
 import time
 import texttable
@@ -24,7 +24,7 @@ APP_DIR = os.path.dirname(os.path.realpath(__file__))
 # This is ok for maemo. Not sure in a regular desktop:
 #APP_DIR = os.path.join (sys.prefix, 'share')
 LOCALE_DIR = os.path.join(APP_DIR, 'i18n') # .mo files will then be located in APP_Dir/i18n/LANGUAGECODE/LC_MESSAGES/
- 
+
 # Now we need to choose the language. We will provide a list, and gettext
 # will use the first translation available in the list
 #
@@ -32,16 +32,16 @@ LOCALE_DIR = os.path.join(APP_DIR, 'i18n') # .mo files will then be located in A
 #  (on desktop is usually LANGUAGES)
 DEFAULT_LANGUAGES = os.environ.get('LANG', '').split(':')
 DEFAULT_LANGUAGES += ['en_US']
- 
+
 lc, encoding = locale.getdefaultlocale()
 if lc:
     languages = [lc]
- 
+
 # Concat all languages (env + default locale),
 #  and here we have the languages and location of the translations
 languages += DEFAULT_LANGUAGES
 mo_location = LOCALE_DIR
- 
+
 # Lets tell those details to gettext
 #  (nothing to change here for you)
 gettext.install(True, localedir=None, unicode=1)
@@ -225,14 +225,14 @@ def print_path(url, printInfo=True, mode="car", width=120):
 
 	table = texttable.Texttable()
 	table.set_deco(0)
-	table.set_cols_dtype(['t',  't',    't']) 
+	table.set_cols_dtype(['t',  't',    't'])
 	table.set_cols_align(["l", "l", "l"])
 	table.set_cols_valign(["t", "t", "t"])
 	#dirty hack
 	width = width + 7
 	instruction_width = width -4 -20
 	table.set_cols_width([4,instruction_width, 21])
-	
+
 
 	for step in steps:
 		instruction = sanitize(step['html_instructions'], instruction_width-10)
@@ -250,7 +250,7 @@ def print_path(url, printInfo=True, mode="car", width=120):
 		duraText=  " %-2s %s%s" % (duraText[0] , duraText[1], rem)
 		duraText = apply_color_per_chunk(duraText, 'green')
 
-	
+
 		table.add_row([str(linenum)+".",instruction, duraText])
 		linenum += 1
 
